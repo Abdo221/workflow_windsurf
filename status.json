@@ -1,0 +1,29 @@
+﻿{
+    "cycle":  0,
+    "problem_description":  "Build a minimal \u0027News Fetcher\u0027 web app.\n\nTech stack:\n- Frontend: React + TypeScript\n- Backend: Python FastAPI\n- Validation: Pydantic v2\n- DB/ORM: SQLite + SQLModel\n- E2E testing: Playwright (preferred) or Cypress\n\nUser flow (UI):\n- One page with:\n  1) text input labeled \u0027Category\u0027\n  2) button labeled \u0027Fetch\u0027\n  3) results list\n  4) a small status line showing one of: FRESH, CACHED, PARTIAL\n- User types a category (e.g., \u0027science\u0027, \u0027sports\u0027) and clicks Fetch.\n- UI renders up to 10 items, sorted by published_at descending (newest first).\n- Each item shows: title, short description, source name, published_at, and a clickable link to the article URL.\n\nBackend behavior:\n- Endpoint: POST /news/fetch\n- Request body: { \"category\": \"\u003cstring\u003e\" }\n- The backend MUST attempt to fetch real news from the internet for the given category.\n- \u0027Latest\u0027 definition: items with published_at within the last 7 days including today (use UTC; filter: published_at \u003e= now_utc - 7 days).\n- Target: return exactly 10 items that satisfy the \u0027latest\u0027 definition, sorted by published_at desc.\n\nRetry + fallback (no infinite waiting):\n- The backend must retry fetching if it cannot obtain 10 valid items.\n- Max attempts: 5 total attempts per request.\n- Backoff between attempts: 0.5s, 1s, 2s, 4s (stop after 5th attempt).\n- If after retries the backend still cannot return 10 valid items:\n  - Query the database for the most recent stored items for that category that are within the last 7 days.\n  - Return up to 10 cached items (sorted by published_at desc).\n  - If the DB also has fewer than 10, return whatever exists (0–9).\n\nResponse contract:\n- Response JSON:\n  {\n    \"status\": \"FRESH\" | \"CACHED\" | \"PARTIAL\",\n    \"attempts\": \u003cint 1..5\u003e,\n    \"category\": \"\u003cstring\u003e\",\n    \"items\": [\n      {\n        \"id\": \"\u003cuuid\u003e\",\n        \"title\": \"\u003cstring\u003e\",\n        \"description\": \"\u003cstring\u003e\",\n        \"url\": \"\u003cstring\u003e\",\n        \"source_name\": \"\u003cstring\u003e\",\n        \"published_at\": \"\u003ciso datetime\u003e\",\n        \"fetched_at\": \"\u003ciso datetime\u003e\"\n      }\n    ]\n  }\n- Status rules:\n  - FRESH: returned 10 items and at least 1 of them was newly fetched from the internet in this request.\n  - CACHED: returned items exclusively from the DB because internet fetch failed to produce 10 after retries.\n  - PARTIAL: returned fewer than 10 items (even after using DB fallback).\n\nPersistence rules:\n- Store every fetched item in SQLite.\n- De-duplication: unique by url. If url already exists, do not insert a new row.\n- Also store the category association so cached queries are per-category.\n\nValidation rules:\n- category: trimmed, lowercase, length 2..32, allowed characters: letters, digits, space, hyphen.\n- url: must be a valid http(s) URL.\n- published_at: must parse as datetime.\n\nE2E test (closed loop, real internet):\n- Start frontend + backend locally.\n- Browser test steps:\n  1) open the app\n  2) type \u0027science\u0027 in Category\n  3) click Fetch\n  4) wait until status line becomes one of FRESH/CACHED/PARTIAL and results render\n  5) assert the UI renders between 1 and 10 items\n  6) for each rendered item assert: title visible, description visible, link has non-empty href starting with http, published_at is displayed\n  7) assert each rendered published_at is within the last 7 days (UTC) relative to test runtime\n\nOut of scope:\n- Auth/users, pagination, saving favorites, complex styling, admin panels.",
+    "current_phase":  "delivery",
+    "current_actor":  "orchestrator",
+    "phase_status":  "done",
+    "actor_status":  "done",
+    "review_status":  "not_requested",
+    "artifacts":  {
+                      "requirements":  "requirements.md",
+                      "to_architect":  "to_architect.md",
+                      "architecture":  "architect.md",
+                      "to_development":  "to_development.md",
+                      "test_report":  "test_report.md",
+                      "security_report":  "security_report.md",
+                      "client_report":  "client_report.md",
+                      "integration_test_report":  "integration_test_report.md"
+                  },
+    "last_event":  "",
+    "timestamps":  {
+                       "workflow_start_time":  "2026-02-01T00:00:00Z",
+                       "workflow_end_time":  "2026-02-01T00:18:37Z",
+                       "phase_start_time":  "2026-02-01T00:18:14Z",
+                       "phase_end_time":  "",
+                       "actor_start_time":  "2026-02-01T00:51:58Z",
+                       "actor_end_time":  "2026-02-01T00:53:36Z",
+                       "last_updated":  "2026-02-01T00:53:36Z"
+                   }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "news-fetcher-tests",
+  "version": "1.0.0",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:backend": "python -m pytest ../tests/test_backend.py -v"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.58.1"
+  }
+}
